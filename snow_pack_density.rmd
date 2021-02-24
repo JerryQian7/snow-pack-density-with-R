@@ -1,0 +1,101 @@
+---
+title: "HW4"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Data
+```{r}
+data <- read.table("gauge.txt", header=TRUE)
+data
+```
+
+
+```{r}
+fit <- lm(formula=density~gain, data=data)
+plot(data$gain, data$density) + abline(fit, col="red")
+```
+# Residuals for original data
+```{r}
+plot(fit$residuals)
+abline(0, 0, col="red")
+```
+
+
+# Transforming data to log
+```{r}
+density = (data$density)
+gain=log(data$gain)
+
+fit.log <- lm(formula=density~gain)
+
+plot(gain,density) + abline(fit.log, col="red")
+```
+
+#Log transformed data residuals
+```{r}
+plot(fit.log$residuals)
+abline(0, 0, col="red")
+```
+
+
+```{r}
+# linear relationship on original data
+summary(fit)$r.squared 
+# linear relationship on log transformed data
+summary(fit.log)$r.squared 
+```
+
+
+As linearity has been checked, we move on to residual normality. Let's take a look at the histogram and the Q-Q plots of the residuals.
+```{r}
+hist(fit$residuals)
+qqnorm(fit$residuals)
+qqline(fit$residuals, col="red")
+```
+
+As linearity has been checked, we move on to residual normality. Let's take a look at the histogram and the Q-Q plots of the residuals.
+```{r}
+hist(fit.log$residuals)
+qqnorm(fit.log$residuals)
+qqline(fit.log$residuals, col="red")
+```
+Prediction
+```{r cars}
+data = read.table('gauge.txt', header = TRUE)
+head(data)
+density = data$density 
+gain = log10(data$gain)
+fit.d1 <- lm(density ~ gain)
+pts <- seq(1, 600, length.out=90)
+val.d1 <- predict(fit.d1, data.frame(gain=pts))
+plot(gain, density)
+lines(pts, val.d1, col = 'blue')
+summary(fit.d1)$r.squared
+summary(fit.d1)
+```
+
+Prediction Intervals
+```{r}
+CI.pred <- predict(fit.d1, data.frame(gain=log10(pts)), interval = "predict")
+plot(gain, density, pch=16)
+lines(pts, CI.conf[,'fit'], col = 'black', lwd = 2)
+lines(pts, CI.pred[,"lwr"], col="red", lwd=1)
+lines(pts, CI.pred[,"upr"], col="red", lwd=1)
+CI.pred
+pts
+```
+Performance
+```{r}
+dens_pred = predict(fit.d1, data.frame(gain))
+actual_preds = data.frame(cbind(actuals = density, predicteds = dens_pred))
+correlation_accuracy = cor(actual_preds)
+DMwR::regr.eval(actual_preds$actuals, actual_preds$predicteds)
+correlation_accuracy
+actual_preds
+```
+
